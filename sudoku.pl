@@ -1,7 +1,11 @@
 %abre a base de conhecimento
 abrirBase :- consult(base_Sudoku).
 
-printf([X|Y], I, F) :- write(X), nl, A is I+1, A < F, printf(Y, A, F).
+printf([X|Y], I, F) :- write(X), nl, A is I+1, A < F, printf(Y, A, F);
+					A is I+1, A >= F, write('matriz printada').
+%printa tabuleiro.
+
+getNum([Xn|Yn], La, Lt) :- write(Xn), La == Lt.   
 
 iniciar :- abrirBase,nl,
      write('            Jogo Sudoku em Prolog'),nl,
@@ -10,4 +14,6 @@ iniciar :- abrirBase,nl,
      write('Tabuleiro inicial:'), nl,
      atribui(L),
      printf(L,0,9),
+     nl,
+     getNum(L, 0, 0),
      fail.
