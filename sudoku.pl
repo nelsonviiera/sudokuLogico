@@ -1,11 +1,14 @@
 %abre a base de conhecimento
 abrirBase :- consult(base_Sudoku).
 
+%inserir elemento em uma lista
+insereInicio(H, L, [H|L]):- !.
+insereFim(T, [H], L):- insereInicio(H,[T],L), !.
+insereFim(N, [H|T], L):- insereFim(N,T,X), insereInicio(H, X, L).
+
 %printa tabuleiro.
 printf([X|Y], I, F) :- write(X), nl, A is I+1, A < F, printf(Y, A, F);
-					A is I+1, A >= F, write('matriz printada').
-
-concatenate(List1, List2, Result) :- append(List1, List2, Result).
+					A is I+1, A >= F.
 
 %linha e coluna alvo
 getNum(L, Li, Co, N) :- getLinha(L, Li, 0, [Linha]), getColuna(Linha, Co, 0, Nx), N is Nx.
@@ -18,12 +21,16 @@ getColuna([X3|X4], Co, Ca, Nx) :- Ca == Co, Nx = X3;
 
 %linha e coluna alvo para mudar o valor
                         %0  %0
-setNum([X1|X2], Li, Co, La, Ca, NovoValor, [[Result]]) :- La == Li, setColuna(X1, Co, Ca, NovoValor, [LinhaMod]), concatenate(Result, [[LinhaMod]], Result2), concatenate(Result2, X2, Result3), Result = Result3;
-                                                          La < Li, Laux is La+1, concatenate(Result, X1, Result2), setNum(X2, Li, Co, Laux, Ca, NovoValor, Result2).
+setNum([X1|X2], Li, Co, La, Ca, NovoValor, [[Result]]) :- La < 9, La \== 0, La == Li, Laux is La+1, setColuna(X1, Co, Ca, NovoValor, [LinhaMod]), insereFim(LinhaMod, Result, Resultaux), setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
+                                                          La < 9, La \== 0, La \== Li, Laux is La+1, insereFim(X1, Result, Resultaux), setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
+                                                          La == 0, Resultaux = [[X1]], Laux is La+1,setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
+                                                          printf(Result, 0, 9).
 
-
-setColuna([X1|X2], Co, Ca, NovoValor,[LinhaMod]) :- Ca == Co, concatenate(NovoValor, [LinhaMod], Result), concatenate(Result, X2, Result2), LinhaMod = Result2;
-                                                    Ca < Co, Caux is Ca+1, concatenate(LinhaMod, X1, Result), setColuna(X2, Co, Caux, NovoValor, Result).  
+                       %0
+setColuna([X1|X2], Co, Ca, NovoValor,[LinhaMod]) :- Ca < 9, Ca \== 0, Ca == Co, Caux is Ca+1, insereFim(NovoValor, LinhaMod, LinhaModaux), setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
+                                                    Ca < 9, Ca \== 0, Ca \== Co, Caux is Ca+1, insereFim(X1, LinhaMod, LinhaModaux), setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
+                                                    Ca == 0, Caux is Ca+1, LinhaModaux = [X1], setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
+                                                    printf(LinhaMod, 0, 9).
 
 iniciar :- abrirBase,nl,
      write('            Jogo Sudoku em Prolog'),nl,
@@ -33,13 +40,13 @@ iniciar :- abrirBase,nl,
      atribui(L),
      printf(L, 0, 9),%printar matriz
      nl,
-     getNum(L, 8, 8, N),
+     getNum(L, 8, 1, N),
      nl,
      write(N),
      nl,
-     setNum(L, 0, 0, 0, 0, 6, Result),
+     setNum(L, 1, 1, 0, 0, 6, Result),
      nl,
-     write(Result),
+     printf(Result,0,9),
      nl,
      write('Fim'),
      nl,
