@@ -32,6 +32,35 @@ setColuna([X1|X2], Co, Ca, NovoValor,LinhaMod) :- Ca < 9, Ca > 0, Ca == Co, Caux
                                                   Ca == 0, Caux is Ca+1, LinhaModaux = [X1],setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
                                                   Ca == 8, insereFim(X1, LinhaMod, LinhaModaux), write(LinhaModaux).
 
+% 1 = True. 0 = False.
+verificaLinha(L, Li, Co, N, Loop, Verifica) :- Loop < 9, getNum(L, Li, Loop, Naux), N == Naux, Verifica is 1;
+                                               Loop < 9, getNum(L, Li, Loop, Naux), N \== Naux, Loopaux is Loop+1, verificaLinha(L, Li, Loopaux, N, Loopaux, Verifica);
+                                               Loop == 9, Verifica is 0.
+
+verificaColuna(L, Li, Co, N, Loop, Verifica) :- Loop < 9, getNum(L, Loop, Co, Naux), N == Naux, Verifica is 1;
+                                                Loop < 9, getNum(L, Loop, Co, Naux), N \== Naux, Loopaux is Loop+1, verificaColuna(L, Loopaux, Co, N, Loopaux, Verifica);
+                                                Loop == 9, Verifica is 0.
+
+
+verificaQuadrante(L, InicioL, FimL, InicioC, FimC, AuxC, N, Verifica) :- InicioL < FimL, InicioC < FimC, getNum(L, InicioL, InicioC, Naux), N == Naux, Verifica = 1;
+                                                                         InicioL < FimL, InicioC < FimC, getNum(L, InicioL, InicioC, Naux), N \== Naux, InicioCaux is InicioC+1, verificaQuadrante(L, InicioL, FimL, InicioCaux, FimC, AuxC, N, Verifica);
+                                                                         InicioL < FimL, InicioC == FimC, InicioLaux is InicioL+1, verificaQuadrante(L, InicioLaux, FimL, AuxC, FimC, AuxC, N, Verifica);
+                                                                         InicioL == FimL, Verifica is 0.
+
+%verifica sudoku linha coluna n
+%     | ((getNum sudoku linha coluna) == n) = True
+%     | ((getNum sudoku linha coluna ) /= 0) = False
+%     | (verificaLinha sudoku linha coluna n 0) = False--ultimo parametro loop que inicia no 0 e vai até 8
+%     | (verificaColuna sudoku linha coluna n 0) = False
+%     | (verificaQuadrante sudoku ((div linha 3)*3) (((div linha 3)+1)*3) ((div coluna 3)*3) (((div coluna 3)+1)*3) ((div coluna 3)*3) n ) = False
+%     | otherwise = True
+verifica(L, Li, Co, N, Verifica) :- getNum(L, Li, Co, Naux), N == Naux, Verifica is 1;
+                                    getNum(L, Li, Co, Naux), Naux \== 0, Verifica is 0;
+                                    verificaLinha(L, Li, Co, N, 0, VerificaL), VerificaL == 0, Verifica is 0;
+                                    verificaColuna(L, Li, Co, N, 0, VerificaC), VerificaC == 0, Verifica is 0;
+                                    verificaQuadrante(L, (Li mod 3)*3, ((Li mod 3)+1)*3, (Co mod 3)*3, ((Co mod 3)+1)*3, (Co mod 3)*3, N, VerificaQ), VerificaQ == 0, Verifica is 0;
+                                    Verifica is 1.
+
 iniciar :- abrirBase,nl,
      write('            Jogo Sudoku em Prolog'),nl,
      write('Desenvolvido por Nelson Vieira e Tiago Umemura'),nl,
