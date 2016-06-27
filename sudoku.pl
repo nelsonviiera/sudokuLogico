@@ -21,16 +21,16 @@ getColuna([X3|X4], Co, Ca, Nx) :- Ca == Co, Nx = X3;
 
 %linha e coluna alvo para mudar o valor
                         %0  %0
-setNum([X1|X2], Li, Co, La, Ca, NovoValor, [[Result]]) :- La < 9, La \== 0, La == Li, Laux is La+1, setColuna(X1, Co, Ca, NovoValor, [LinhaMod]), insereFim(LinhaMod, Result, Resultaux), setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
-                                                          La < 9, La \== 0, La \== Li, Laux is La+1, insereFim(X1, Result, Resultaux), setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
-                                                          La == 0, Resultaux = [[X1]], Laux is La+1,setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
-                                                          printf(Result, 0, 9).
+setNum([X1|X2], Li, Co, La, Ca, NovoValor, Result) :- La < 9, La > 0, La == Li, Laux is La+1, setColuna(X1, Co, Ca, NovoValor, LinhaMod), insereFim(LinhaMod, Result, Resultaux), setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
+                                                      La < 9, La > 0, Li \== La, Laux is La+1, insereFim(X1, Result, Resultaux), setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
+                                                      La == 0, Resultaux = [X1], Laux is La+1, setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
+                                                      La == 8, insereFim(X1, Result, Resultaux),printf(Resultaux, 0, 9).
 
                        %0
-setColuna([X1|X2], Co, Ca, NovoValor,[LinhaMod]) :- Ca < 9, Ca \== 0, Ca == Co, Caux is Ca+1, insereFim(NovoValor, LinhaMod, LinhaModaux), setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
-                                                    Ca < 9, Ca \== 0, Ca \== Co, Caux is Ca+1, insereFim(X1, LinhaMod, LinhaModaux), setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
-                                                    Ca == 0, Caux is Ca+1, LinhaModaux = [X1], setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
-                                                    printf(LinhaMod, 0, 9).
+setColuna([X1|X2], Co, Ca, NovoValor,LinhaMod) :- Ca < 9, Ca > 0, Ca == Co, Caux is Ca+1, insereFim(NovoValor, LinhaMod, LinhaModaux), setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
+                                                  Ca < 9, Ca > 0, Ca \== Co, Caux is Ca+1, insereFim(X1, LinhaMod, LinhaModaux), setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
+                                                  Ca == 0, Caux is Ca+1, LinhaModaux = [X1],setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
+                                                  Ca == 8, insereFim(X1, LinhaMod, LinhaModaux), write(LinhaModaux).
 
 iniciar :- abrirBase,nl,
      write('            Jogo Sudoku em Prolog'),nl,
@@ -44,7 +44,7 @@ iniciar :- abrirBase,nl,
      nl,
      write(N),
      nl,
-     setNum(L, 1, 1, 0, 0, 6, Result),
+     setNum(L, 2, 2, 0, 0, 6, Result),
      nl,
      printf(Result,0,9),
      nl,
