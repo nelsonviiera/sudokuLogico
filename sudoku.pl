@@ -1,3 +1,6 @@
+%Carrega biblioteca random
+use_module(library(random)).
+
 %abre a base de conhecimento
 abrirBase :- consult(base_Sudoku).
 
@@ -70,6 +73,9 @@ verifica(L, Li, Co, N, Verifica) :- getNum(L, Li, Co, Naux), N == Naux, Verifica
                                     verificaQuadrante(L, (Li mod 3)*3, ((Li mod 3)+1)*3, (Co mod 3)*3, ((Co mod 3)+1)*3, (Co mod 3)*3, N, VerificaQ), VerificaQ == 0, Verifica is 0;
                                     Verifica is 1.
 
+%gerarSudoku([X|Y], N, X, I, J, K) 
+gerarSudoku(N) :- write('número random: '), write(N), nl.
+
 iniciar :- abrirBase,nl,
      write('            Jogo Sudoku em Prolog'),nl,
      write('Desenvolvido por Nelson Vieira e Tiago Umemura'),nl,
@@ -78,6 +84,8 @@ iniciar :- abrirBase,nl,
      atribui(L),
      printf(L, 0, 9),%printar matriz
      nl,
+     random(0, 9, Out),
+     gerarSudoku(Out),
      getNum(L, 8, 1, N),
      nl,
      write(N),
