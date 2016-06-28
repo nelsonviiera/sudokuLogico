@@ -22,19 +22,6 @@ getLinha([X1|X2], Li, La, [Linha]) :- La == Li, Linha = X1;
 getColuna([X3|X4], Co, Ca, Nx) :- Ca == Co, Nx = X3;
                                   Ca < Co, Caux is Ca+1, getColuna(X4, Co, Caux, Nx).
 
-%linha e coluna alvo para mudar o valor
-                        %0  %0
-%setNum([X1|X2], Li, Co, La, Ca, NovoValor, Result) :- La < 9, La > 0, La == Li, Laux is La+1, setColuna(X1, Co, Ca, NovoValor, LinhaMod), insereFim(LinhaMod, Result, Resultaux), setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
-%                                                      La < 9, La > 0, Li \== La, Laux is La+1, insereFim(X1, Result, Resultaux), setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
-%                                                     La == 0, Resultaux = [X1], Laux is La+1, setNum(X2, Li, Co, Laux, Ca, NovoValor, Resultaux);
-%                                                      La == 8, insereFim(X1, Result, Resultaux),printf(Resultaux, 0, 9).
-%
-                       %0
-%setColuna([X1|X2], Co, Ca, NovoValor,LinhaMod) :- Ca < 9, Ca > 0, Ca == Co, Caux is Ca+1, insereFim(NovoValor, LinhaMod, LinhaModaux), setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
-%                                                  Ca < 9, Ca > 0, Ca \== Co, Caux is Ca+1, insereFim(X1, LinhaMod, LinhaModaux), setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
-%                                                  Ca == 0, Caux is Ca+1, LinhaModaux = [X1],setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
-%                                                  Ca == 8, insereFim(X1, LinhaMod, LinhaModaux), write(LinhaModaux).
-
 setNum(L, Li, Co, N, Laux) :- trocaLinha(Li, Co, N, L, Laux).
                       
 trocaLinha(0, Co, N, [H|T], [Laux|T]) :- trocaColuna(Co, N, H, Laux).
@@ -58,13 +45,7 @@ verificaQuadrante(L, InicioL, FimL, InicioC, FimC, AuxC, N, Verifica) :- InicioL
                                                                          InicioL < FimL, InicioC == FimC, InicioLaux is InicioL+1, verificaQuadrante(L, InicioLaux, FimL, AuxC, FimC, AuxC, N, Verifica);
                                                                          InicioL == FimL, Verifica is 0.
 
-%verifica sudoku linha coluna n
-%     | ((getNum sudoku linha coluna) == n) = True
-%     | ((getNum sudoku linha coluna ) /= 0) = False
-%     | (verificaLinha sudoku linha coluna n 0) = False--ultimo parametro loop que inicia no 0 e vai até 8
-%     | (verificaColuna sudoku linha coluna n 0) = False
-%     | (verificaQuadrante sudoku ((div linha 3)*3) (((div linha 3)+1)*3) ((div coluna 3)*3) (((div coluna 3)+1)*3) ((div coluna 3)*3) n ) = False
-%     | otherwise = True
+
 verifica(L, Li, Co, N, Verifica) :- getNum(L, Li, Co, Naux), N == Naux, Verifica is 1;
                                     getNum(L, Li, Co, Naux), Naux \== 0, Verifica is 0;
                                     verificaLinha(L, Li, Co, N, 0, VerificaL), VerificaL == 0, Verifica is 0;
@@ -73,42 +54,55 @@ verifica(L, Li, Co, N, Verifica) :- getNum(L, Li, Co, Naux), N == Naux, Verifica
                                     Verifica is 1.
 
 
-%gerarSudoku matriz n x i j k = do
-%  if (i < n) then do
-%    if (j < n) then do
-%      if (k < n*n) then do
-%        gerarSudoku (setNum matriz (n*i+j) k 0 0 ((mod x (n*n)) + 1)) n (x+1) i j (k+1)
-%      else do
-%        gerarSudoku matriz n (x+n) i (j+1) 0  
-%    else do
+gerarSudoku(L, N, X, I, J, K, Laux) :- I < N, J < N, K < N*N, Li is N*I+J, Num is (X mod (N*N))+1, setNum(L, Li, K, Num, Tabuleiroaux), Kaux is K+1, Xaux is X+1, gerarSudoku(Tabuleiroaux, N, Xaux, I, J, Kaux, Laux);
+                                       I < N, J < N, K >= N*N, Xaux is X+N, Jaux is J+1, gerarSudoku(L, N, Xaux, I, Jaux, 0, Laux);
+                                       I < N, J >= N, Xaux is X+1, Iaux is I+1, gerarSudoku(L, N, Xaux, Iaux, 0, 0, Laux);
+                                       I == N, Laux = L.
 
-%      gerarSudoku matriz n (x+1) (i+1) 0 0
-
-%  else do
-%    matriz
+%gerarJogo matriz nEspaco cont = do
+%     if (cont /= nEspaco) then do
+%          linR <- randomRIO (0, 8 :: Int)
+%          colR <- randomRIO (0, 8 :: Int)
+%          if ((getNum matriz linR colR) == 0) then do
+%               gerarJogo matriz nEspaco cont
+%          else do
+%               gerarJogo (setNum matriz linR colR 0 0 0) nEspaco (cont+1)
+%     else do
+%          matriz
+%getNum(L, Li, Co, N)
 %setNum(L, Li, Co, N, Laux)
-gerarSudoku(L, N, X, I, J, K, Laux) :- 
-I < N, J < N, K < N*N, Li is N*I+J, Num is (X mod (N*N))+1, setNum(L, Li, K, Num, Tabuleiroaux), Kaux is K+1, Xaux is X+1, gerarSudoku(Tabuleiroaux, N, Xaux, I, J, Kaux, Laux);
-I < N, J < N, K >= N*N, Xaux is X+N, Jaux is J+1, gerarSudoku(L, N, Xaux, I, Jaux, 0, Laux);
-I < N, J >= N, Xaux is X+1, Iaux is I+1, gerarSudoku(L, N, Xaux, Iaux, 0, 0, Laux);
-I == N, Laux = L.
+tiraNumeros(L, NEspaco, NovoSudoku) :- 
+NEspaco > 0, random(0, 9, Li), random(0, 9, Co), getNum(L, Li, Co, N), N == 0, tiraNumeros(L, NEspaco, NovoSudoku);
+NEspaco > 0, random(0, 9, Li), random(0, 9, Co), getNum(L, Li, Co, N), N \== 0, setNum(L, Li, Co, 0, Laux), NEspacoaux is NEspaco-1, tiraNumeros(Laux, NEspacoaux, NovoSudoku);
+NEspaco == 0, NovoSudoku = L.
+
+jogar(SudokuZeros, Sudoku, QtdZeros) :- 
+QtdZeros > 0, write('Informe a linha e coluna '), read(Li), read(Co), read(Valor), 
+getNum(Sudoku, Li, Co, N), N == Valor, setNum(SudokuZeros, Li, Co, Valor, SudokuAux), 
+QtdZerosAux is QtdZeros-1, printf(SudokuAux, 0, 9), jogar(SudokuAux, Sudoku, QtdZerosAux);
+
+QtdZeros > 0, write('Informe a linha e coluna '), read(Li), read(Co), read(Valor), 
+getNum(Sudoku, Li, Co, N), N \== Valor, write('Errou, tente novamente'), nl, jogar(SudokuZeros, Sudoku, QtdZeros);
+
+QtdZeros == 0, write('Parabéns, você completou o Sudoku!'), halt(0).
 
 iniciar :- abrirBase,nl,
-
      write('            Jogo Sudoku em Prolog'),nl,
      write('Desenvolvido por Nelson Vieira e Tiago Umemura'),nl,
      write('----------------------------------------------'),nl,
-     write('Tabuleiro inicial:'), nl,
      atribui(L),
-     printf(L, 0, 9),%printar matriz
-     nl,
-     random(0, 9, Out),
-     write('Aloha '),
-     write(Out),
-     nl,
-     gerarSudoku(L, 3, Out, 0, 0, 0, Laux),
-     write(Laux),
-     nl,
+     %Semente para não gerar sudoku igual
+     random(0, 9, Rand),
+     write('Tabuleiro inicial:'), nl,
+     gerarSudoku(L, 3, Rand, 0, 0, 0, Sudoku),
+     printf(Sudoku, 0, 9), nl,
+     %1 = 10 espaços vazios. 2 = 20. 3 = 30
+     write('Escolha a dificuldade (1 - 2 - 3) Não se esqueça do ponto'), nl,
+     read(Dif),
+     Difaux is Dif * 10,
+     tiraNumeros(Sudoku, Difaux, NovoSudoku),
+     printf(NovoSudoku, 0, 9), nl,
+     jogar(NovoSudoku, Sudoku, Difaux),nl,
      write('Fim'),
      nl,
      fail.
