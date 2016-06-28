@@ -35,14 +35,13 @@ getColuna([X3|X4], Co, Ca, Nx) :- Ca == Co, Nx = X3;
 %                                                  Ca == 0, Caux is Ca+1, LinhaModaux = [X1],setColuna(X2, Co, Caux, NovoValor, LinhaModaux);
 %                                                  Ca == 8, insereFim(X1, LinhaMod, LinhaModaux), write(LinhaModaux).
 
-trocaPosicao(T,X,Y,NovaPeca, NovoTabuleiro) :- 
-  trocaLista(X,Y,NovaPeca,T,NovoTabuleiro).
+setNum(L, Li, Co, N, Laux) :- trocaLinha(Li, Co, N, L, Laux).
                       
-trocaLista(0,Y,NovaPeca,[H|T],[NovoTabuleiro|T]) :- trocaColuna(Y,NovaPeca,H,NovoTabuleiro).
-trocaLista(X,Y,NovaPeca,[H|T],[H|NovoTabuleiro]) :- AuxX is X - 1, trocaLista(AuxX,Y,NovaPeca,T,NovoTabuleiro).
+trocaLinha(0, Co, N, [H|T], [Laux|T]) :- trocaColuna(Co, N, H, Laux).
+trocaLinha(Li, Co, N, [H|T], [H|Laux]) :- Liaux is Li - 1, trocaLinha(Liaux, Co, N, T, Laux).
                       
-trocaColuna(0,NovaPeca,[_|T], [NovaPeca|T]).                      
-trocaColuna(Y,NovaPeca,[H|T],[H|NovoTabuleiro]) :- AuxY is Y - 1, trocaColuna(AuxY,NovaPeca,T,NovoTabuleiro).
+trocaColuna(0, N, [_|T], [N|T]).                      
+trocaColuna(Co, N, [H|T], [H|Laux]) :- Coaux is Co - 1, trocaColuna(Coaux, N, T, Laux).
 
 % 1 = True. 0 = False.
 verificaLinha(L, Li, Co, N, Loop, Verifica) :- Loop < 9, getNum(L, Li, Loop, Naux), N == Naux, Verifica is 1;
@@ -73,10 +72,29 @@ verifica(L, Li, Co, N, Verifica) :- getNum(L, Li, Co, Naux), N == Naux, Verifica
                                     verificaQuadrante(L, (Li mod 3)*3, ((Li mod 3)+1)*3, (Co mod 3)*3, ((Co mod 3)+1)*3, (Co mod 3)*3, N, VerificaQ), VerificaQ == 0, Verifica is 0;
                                     Verifica is 1.
 
-%gerarSudoku([X|Y], N, X, I, J, K) 
-gerarSudoku(N) :- write('número random: '), write(N), nl.
+
+%gerarSudoku matriz n x i j k = do
+%  if (i < n) then do
+%    if (j < n) then do
+%      if (k < n*n) then do
+%        gerarSudoku (setNum matriz (n*i+j) k 0 0 ((mod x (n*n)) + 1)) n (x+1) i j (k+1)
+%      else do
+%        gerarSudoku matriz n (x+n) i (j+1) 0  
+%    else do
+
+%      gerarSudoku matriz n (x+1) (i+1) 0 0
+
+%  else do
+%    matriz
+%setNum(L, Li, Co, N, Laux)
+gerarSudoku(L, N, X, I, J, K, Laux) :- 
+I < N, J < N, K < N*N, Li is N*I+J, Num is (X mod (N*N))+1, setNum(L, Li, K, Num, Tabuleiroaux), Kaux is K+1, Xaux is X+1, gerarSudoku(Tabuleiroaux, N, Xaux, I, J, Kaux, Laux);
+I < N, J < N, K >= N*N, Xaux is X+N, Jaux is J+1, gerarSudoku(L, N, Xaux, I, Jaux, 0, Laux);
+I < N, J >= N, Xaux is X+1, Iaux is I+1, gerarSudoku(L, N, Xaux, Iaux, 0, 0, Laux);
+I == N, Laux = L.
 
 iniciar :- abrirBase,nl,
+
      write('            Jogo Sudoku em Prolog'),nl,
      write('Desenvolvido por Nelson Vieira e Tiago Umemura'),nl,
      write('----------------------------------------------'),nl,
@@ -85,16 +103,12 @@ iniciar :- abrirBase,nl,
      printf(L, 0, 9),%printar matriz
      nl,
      random(0, 9, Out),
-     gerarSudoku(Out),
-     getNum(L, 8, 1, N),
+     write('Aloha '),
+     write(Out),
      nl,
-     write(N),
-     nl,
-     trocaPosicao(L, 2, 3, 6, Result),
-     nl,
-     printf(Result, 0, 9),
+     gerarSudoku(L, 3, Out, 0, 0, 0, Laux),
+     write(Laux),
      nl,
      write('Fim'),
      nl,
-     write(Result),
      fail.
